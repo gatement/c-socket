@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 #define UDP_PORT 13001
 #define BUFFER_SIZE 255
@@ -19,7 +20,7 @@ int main(void)
     int listenSock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if(listenSock == -1)
     {
-        printf("new socket error.\n");
+        printf("new socket error: %s(%d)\n", strerror(errno), errno);
         return -1;    
     }
 
@@ -36,14 +37,14 @@ int main(void)
     int yes = 1;
     if(setsockopt(listenSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
     {
-        printf("set socket option error.\n");
+        printf("set socket option error: %s(%d)\n", strerror(errno), errno);
         close(listenSock);
         return -1;    
     }
 
     if(bind(listenSock, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1)
     {
-        printf("bind socket error.\n");
+        printf("bind socket error: %s(%d)\n", strerror(errno), errno);
         close(listenSock);
         return -1;    
     }
@@ -57,14 +58,14 @@ int main(void)
         recvSize = recvfrom(listenSock, (void *) buf, BUFFER_SIZE, 0, (struct sockaddr *)&clientAddr, &clientAddrLen); 
         if(recvSize < 0)
         {
-            printf("recvfrom error.\n");
+            printf("recvfrom error:%s(%d)\n", strerror(errno), errno);
             sleep(3);
             continue;
         }
         else if(recvSize > 0)
         {
             buf[recvSize] = '\0';
-            printf("received data from client [%d:%d]: %s\n", clientAddr, clientAddr.sin_addr.s_addr, ntohs(clientAddr.sin_port), buf);
+            printf("received data from client [%d:%d]: %s\n", clientAddr.sin_addr.s_addr, ntohs(clientAddr.sin_port), buf);
         }
     }
 

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 #define UDP_PORT 13001
 #define SERVER "127.0.0.1"
@@ -23,7 +24,7 @@ int main(void)
     int clientSock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if(clientSock == -1)
     {
-        printf("new socket error.\n");
+        printf("new socket error: %s(%d)\n", strerror(errno), errno);
         return -1;    
     }
 
@@ -34,21 +35,21 @@ int main(void)
     result = inet_pton(AF_INET, SERVER, &serverAddr.sin_addr);
     if(result < 0)
     {
-        printf("inet_pton: invalid address family.\n");
+        printf("inet_pton: invalid address family: %s(%d)\n", strerror(errno), errno);
         close(clientSock);
         return -1;
     }
     else if(result == 0)
     {
-        printf("inet_pton: invalid address string.\n");
+        printf("inet_pton: invalid address string: %s(%d)\n", strerror(errno), errno);
         close(clientSock);
         return -1;
     }
 
-    int bytesSent = sendto(clientSock, buf, strlen(buf), 0, (struct sockaddr*)&clientSock, sizeof(clientSock));
+    int bytesSent = sendto(clientSock, buf, strlen(buf), 0, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
     if(bytesSent <= 0)
     {
-        printf("send data error.\n");
+        printf("send data error: %s(%d)\n", strerror(errno), errno);
         close(clientSock);
         return -1;
     }

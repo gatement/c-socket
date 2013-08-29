@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 #define TCP_PORT 13000
 #define TCP_QUEUE_LEN 10
@@ -21,7 +22,7 @@ int main(void)
     int listenSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(listenSock == -1)
     {
-        printf("new socket error.\n");
+        printf("new socket error: %s(%d)\n", strerror(errno), errno);
         return -1;    
     }
 
@@ -38,21 +39,21 @@ int main(void)
     int yes = 1;
     if(setsockopt(listenSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
     {
-        printf("set socket option error.\n");
+        printf("set socket option error: %s(%d)\n", strerror(errno), errno);
         close(listenSock);
         return -1;    
     }
 
     if(bind(listenSock, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1)
     {
-        printf("bind socket error.\n");
+        printf("bind socket error: %s(%d)\n", strerror(errno), errno);
         close(listenSock);
         return -1;    
     }
 
     if(listen(listenSock, TCP_QUEUE_LEN) == -1)
     {
-        printf("listen socket error.\n");
+        printf("listen socket error: %s(%d)\n", strerror(errno), errno);
         close(listenSock);
         return -1;    
     }
@@ -65,7 +66,7 @@ int main(void)
         int clientSock = accept(listenSock, (struct sockaddr *)&clientAddr, &clientAddrLen);
         if(clientSock == -1)
         {
-            printf("accept socket error.\n");
+            printf("accept socket error: %s(%d)\n", strerror(errno), errno);
             sleep(3);
             continue;
         }
