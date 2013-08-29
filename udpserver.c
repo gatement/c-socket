@@ -65,7 +65,7 @@ int main(void)
         else if(recvSize > 0)
         {
             buf[recvSize] = '\0';
-            printf("received data from client [%d:%d]: %s\n", clientAddr.sin_addr.s_addr, ntohs(clientAddr.sin_port), buf);
+            printf("received data from client [%s:%d]: %s\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port), buf);
         }
     }
 

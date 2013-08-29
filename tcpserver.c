@@ -55,7 +55,7 @@ int main(void)
     {
         printf("listen socket error: %s(%d)\n", strerror(errno), errno);
         close(listenSock);
-        return -1;    
+        return -1;
     }
 
     while(1)
@@ -63,6 +63,7 @@ int main(void)
         printf("start accepting tcp connection...\n");
 
         bzero(&clientAddr, sizeof(clientAddr));
+        //memset(&clientAddr, 0, sizeof(clientAddr));
         int clientSock = accept(listenSock, (struct sockaddr *)&clientAddr, &clientAddrLen);
         if(clientSock == -1)
         {
@@ -71,9 +72,7 @@ int main(void)
             continue;
         }
 
-        // the flowing code doesn't work
-        //printf("start connection from client %s:%d\n", clientAddr, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
-        printf("accepted connection from client %d:%d\n", clientAddr, clientAddr.sin_addr.s_addr, ntohs(clientAddr.sin_port));
+        printf("accepted connection from client %s:%d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
 
         send(clientSock, buf, strlen(buf), 0);
 
