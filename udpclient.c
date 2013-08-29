@@ -7,15 +7,20 @@
 #include <string.h>
 #include <unistd.h>
 
-#define TCP_PORT 13000
+#define UDP_PORT 13001
 #define SERVER "127.0.0.1"
 #define BUFFER_SIZE 255
+#define HELLO_MSG "hello, udp server."
 
-// return 0: success, -1: error
+// reutrn 0: success, -1: error
 int main(void)
 {
     int result;
-    int clientSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    ssize_t recvSize;
+    char buf[BUFFER_SIZE];
+    strcpy(buf, HELLO_MSG);
+
+    int clientSock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if(clientSock == -1)
     {
         printf("new socket error.\n");
@@ -25,7 +30,7 @@ int main(void)
     struct sockaddr_in serverAddr;
     memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(TCP_PORT);
+    serverAddr.sin_port = htons(UDP_PORT);
     result = inet_pton(AF_INET, SERVER, &serverAddr.sin_addr);
     if(result < 0)
     {
@@ -40,19 +45,12 @@ int main(void)
         return -1;
     }
 
-    if(connect(clientSock, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1)
+    int bytesSent = sendto(clientSock, buf, strlen(buf), 0, (struct sockaddr*)&clientSock, sizeof(clientSock));
+    if(bytesSent <= 0)
     {
-        printf("connect failed.\n");
+        printf("send data error.\n");
         close(clientSock);
         return -1;
-    }
-
-    char buf[BUFFER_SIZE]; 
-    int recvlen = recv(clientSock, buf, BUFFER_SIZE, 0);
-    if(recvlen > 0)
-    {
-        buf[recvlen] = '\0';
-        printf("received: %s\n", buf);
     }
 
     close(clientSock);

@@ -7,18 +7,16 @@
 #include <string.h>
 #include <unistd.h>
 
-#define TCP_PORT 13000
-#define TCP_QUEUE_LEN 10
+#define UDP_PORT 13001
 #define BUFFER_SIZE 255
-#define WELCOME_MSG "welcome."
 
 // reutrn 0: success, -1: error
 int main(void)
 {
+    ssize_t recvSize;
     char buf[BUFFER_SIZE];
-    strcpy(buf, WELCOME_MSG);
 
-    int listenSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    int listenSock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if(listenSock == -1)
     {
         printf("new socket error.\n");
@@ -29,7 +27,7 @@ int main(void)
     memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = htonl(INADDR_ANY); 
-    serverAddr.sin_port = htons(TCP_PORT);
+    serverAddr.sin_port = htons(UDP_PORT);
 
     struct sockaddr_in clientAddr;
     socklen_t clientAddrLen = sizeof(clientAddr);
@@ -50,33 +48,24 @@ int main(void)
         return -1;    
     }
 
-    if(listen(listenSock, TCP_QUEUE_LEN) == -1)
-    {
-        printf("listen socket error.\n");
-        close(listenSock);
-        return -1;    
-    }
-
     while(1)
     {
-        printf("start accepting tcp connection...\n");
+        printf("start listening udp datagrams...\n");
 
         bzero(&clientAddr, sizeof(clientAddr));
-        int clientSock = accept(listenSock, (struct sockaddr *)&clientAddr, &clientAddrLen);
-        if(clientSock == -1)
+        
+        recvSize = recvfrom(listenSock, (void *) buf, BUFFER_SIZE, 0, (struct sockaddr *)&clientAddr, &clientAddrLen); 
+        if(recvSize < 0)
         {
-            printf("accept socket error.\n");
+            printf("recvfrom error.\n");
             sleep(3);
             continue;
         }
-
-        // the flowing code doesn't work
-        //printf("start connection from client %s:%d\n", clientAddr, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
-        printf("accepted connection from client %d:%d\n", clientAddr, clientAddr.sin_addr.s_addr, ntohs(clientAddr.sin_port));
-
-        send(clientSock, buf, strlen(buf), 0);
-
-        close(clientSock);
+        else if(recvSize > 0)
+        {
+            buf[recvSize] = '\0';
+            printf("received data from client [%d:%d]: %s\n", clientAddr, clientAddr.sin_addr.s_addr, ntohs(clientAddr.sin_port), buf);
+        }
     }
 
     close(listenSock);
