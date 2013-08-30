@@ -37,12 +37,12 @@ int main(void)
     if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
         ERR_EXIT("bind error");
 
-    if (listen(listenfd, SOMAXCONN) < 0) //listen应在socket和bind之后，而在accept之前
+    if (listen(listenfd, SOMAXCONN) < 0)
         ERR_EXIT("listen error");
 
-    struct sockaddr_in peeraddr; //传出参数
-    socklen_t peerlen = sizeof(peeraddr); //传入传出参数，必须有初始值
-    int conn; // 已连接套接字(变为主动套接字，即可以主动connect)
+    struct sockaddr_in peeraddr;
+    socklen_t peerlen = sizeof(peeraddr);
+    int conn;
     if ((conn = accept(listenfd, (struct sockaddr *)&peeraddr, &peerlen)) < 0)
         ERR_EXIT("accept error");
     printf("recv connect ip=%s port=%d\n", inet_ntoa(peeraddr.sin_addr),

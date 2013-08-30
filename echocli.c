@@ -16,15 +16,12 @@
     } while (0)
 
 
-
-
 int main(void)
 {
     int sock;
     if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
         //  listenfd = socket(AF_INET, SOCK_STREAM, 0)
         ERR_EXIT("socket error");
-
 
     struct sockaddr_in servaddr;
     memset(&servaddr, 0, sizeof(servaddr));
@@ -41,10 +38,8 @@ int main(void)
     char recvbuf[1024] = {0};
     while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL)
     {
-
         write(sock, sendbuf, strlen(sendbuf));
         read(sock, recvbuf, sizeof(recvbuf));
-
 
         fputs(recvbuf, stdout);
 

@@ -4,8 +4,9 @@
 
 int main(void)
 {
-    char buf[100];
-    strcpy(buf, "Johnson");
-    buf[7] = '\0';
-    fputs(buf, stdout);
+    char buf[100] = {0};
+	while(fgets(buf, sizeof(buf), stdin) != NULL)
+	{
+		fputs(buf, stdout);
+	}
 }
