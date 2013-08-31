@@ -40,18 +40,18 @@ int main(void)
     if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
         ERR_EXIT("bind error");
 
-    if (listen(listenfd, SOMAXCONN) < 0) //listen应在socket和bind之后，而在accept之前
+    if (listen(listenfd, SOMAXCONN) < 0)
         ERR_EXIT("listen error");
 
-    struct sockaddr_in peeraddr; //传出参数
-    socklen_t peerlen = sizeof(peeraddr); //传入传出参数，必须有初始值
-    int conn; // 已连接套接字(变为主动套接字，即可以主动connect)
+    struct sockaddr_in peeraddr;
+    socklen_t peerlen = sizeof(peeraddr);
+    int conn;
 
     pid_t pid;
 
     while (1)
     {
-        if ((conn = accept(listenfd, (struct sockaddr *)&peeraddr, &peerlen)) < 0) //3次握手完成的序列
+        if ((conn = accept(listenfd, (struct sockaddr *)&peeraddr, &peerlen)) < 0)
             ERR_EXIT("accept error");
         printf("recv connect ip=%s port=%d\n", inet_ntoa(peeraddr.sin_addr),
                ntohs(peeraddr.sin_port));
@@ -61,13 +61,12 @@ int main(void)
             ERR_EXIT("fork error");
         if (pid == 0)
         {
-            // 子进程
             close(listenfd);
             do_service(conn);
             exit(EXIT_SUCCESS);
         }
         else
-            close(conn); //父进程
+            close(conn);
     }
 
     return 0;
@@ -80,9 +79,10 @@ void do_service(int conn)
     {
         memset(recvbuf, 0, sizeof(recvbuf));
         int ret = read(conn, recvbuf, sizeof(recvbuf));
-        if (ret == 0)   //客户端关闭了
+        if (ret == 0)
         {
             printf("client close\n");
+			close(conn);
             break;
         }
         else if (ret == -1)
