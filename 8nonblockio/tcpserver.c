@@ -95,6 +95,15 @@ int main(void)
 			{
 				peerLen = peerLen < i+1 ? i+1 : peerLen;
 
+				// todo: keep the old options
+				// int flags = fcntl(fd, F_GETFL);
+				// if (flags == -1)
+				//     ERR_EXIT("fcntl error");
+				//
+				// flags &= ~O_NONBLOCK;
+				// ret = fcntl(fd, F_SETFL, flags);
+				// if (ret == -1)
+				//    ERR_EXIT("fcntl error");
 				fcntl(clientSock, F_SETFL, O_NONBLOCK);
 				printf("accepted connection(%d) %s:%d\n", i, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
 				
