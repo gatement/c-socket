@@ -36,6 +36,15 @@ int main(void)
 		ERR_EXIT("connect error");
 	}
 
+	// print local addr
+	struct sockaddr_in localaddr;
+	socklen_t localaddrlen = sizeof(localaddr);
+	if (getsockname(sock, (struct sockaddr *) &localaddr, &localaddrlen) < 0)
+	{
+		ERR_EXIT("getsockname error");
+	}
+	printf("local ip=%s, port=%d\n", inet_ntoa(localaddr.sin_addr), ntohs(localaddr.sin_port));
+
 	char buf[1024];
 	int n, ret;
 	memset(&buf, 0, sizeof(buf));
