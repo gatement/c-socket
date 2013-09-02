@@ -33,7 +33,7 @@ int main(void)
         memset(&servaddr, 0, sizeof(servaddr));
         servaddr.sin_family = AF_INET;
         servaddr.sin_port = htons(5188);
-        servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+        servaddr.sin_addr.s_addr = inet_addr("192.168.1.10");
 
         if (connect(sock, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
             ERR_EXIT("connect");
