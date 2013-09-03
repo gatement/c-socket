@@ -43,8 +43,7 @@ int main(void)
         if (getsockname(sock, (struct sockaddr *)&localaddr, &addrlen) < 0)
             ERR_EXIT("getsockname");
 
-        printf("ip=%s port=%d\n", inet_ntoa(localaddr.sin_addr), ntohs(localaddr.sin_port));
-        printf("count = %d\n", ++count);
+        printf("%d: ip=%s port=%d\n", ++count, inet_ntoa(localaddr.sin_addr), ntohs(localaddr.sin_port));
     }
 
     return 0;

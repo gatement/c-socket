@@ -7,19 +7,14 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/epoll.h>
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
 
-#include <vector>
-#include <algorithm>
-
 #include "helper.h"
 #include "sysutil.h"
 
-typedef std::vector<struct epoll_event> EventList;
 
 int main(void)
 {
@@ -44,16 +39,16 @@ int main(void)
     if (listen(listenfd, SOMAXCONN) < 0)
         ERR_EXIT("listen");
 
-    std::vector<int> clients;
-    int epollfd;
-    epollfd = epoll_create1(EPOLL_CLOEXEC);
+    int epollfd = epoll_create1(EPOLL_CLOEXEC);
 
     struct epoll_event event;
     event.data.fd = listenfd;
-    event.events = EPOLLIN | EPOLLET; //EPOLLET = EPOLL Edge Trigger
+    //event.events = EPOLLIN | EPOLLET; //EPOLLET = EPOLL Edge Trigger
+    event.events = EPOLLIN; //EPOLLLT = EPOLL Level Trigger
     epoll_ctl(epollfd, EPOLL_CTL_ADD, listenfd, &event);
 
-    EventList events(16);
+	int maxevents = 2048;
+    struct epoll_event events[maxevents];
     struct sockaddr_in peeraddr;
     socklen_t peerlen;
     int conn;
@@ -62,7 +57,7 @@ int main(void)
     int nready;
     while (1)
     {
-        nready = epoll_wait(epollfd, &*events.begin(), static_cast<int>(events.size()), -1);
+        nready = epoll_wait(epollfd, events, maxevents, -1);
         if (nready == -1)
         {
             if (errno == EINTR)
@@ -73,8 +68,8 @@ int main(void)
         if (nready == 0)
             continue;
 
-        if ((size_t)nready == events.size())
-            events.resize(events.size() * 2);
+        if ((size_t)nready == maxevents)
+            ERR_EXIT("too many events");
 
         for (i = 0; i < nready; i++)
         {
@@ -85,14 +80,13 @@ int main(void)
                 if (conn == -1)
                     ERR_EXIT("accept");
 
-                printf("ip=%s port=%d\n", inet_ntoa(peeraddr.sin_addr), ntohs(peeraddr.sin_port));
-                printf("count = %d\n", ++count);
-                clients.push_back(conn);
+                printf("%d: ip=%s port=%d\n", ++count, inet_ntoa(peeraddr.sin_addr), ntohs(peeraddr.sin_port));
 
                 activate_nonblock(conn);
 
                 event.data.fd = conn;
-                event.events = EPOLLIN | EPOLLET;
+                //event.events = EPOLLIN | EPOLLET;
+                event.events = EPOLLIN;
                 epoll_ctl(epollfd, EPOLL_CTL_ADD, conn, &event);
             }
             else if (events[i].events & EPOLLIN)
@@ -107,12 +101,11 @@ int main(void)
                     ERR_EXIT("readline");
                 if (ret == 0)
                 {
-                    printf("client close\n");
+                    //printf("client close\n");
                     close(conn);
 
                     event = events[i];
                     epoll_ctl(epollfd, EPOLL_CTL_DEL, conn, &event);
-                    clients.erase(std::remove(clients.begin(), clients.end(), conn), clients.end());
                 }
 
                 fputs(recvbuf, stdout);

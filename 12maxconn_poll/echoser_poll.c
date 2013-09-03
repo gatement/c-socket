@@ -99,8 +99,7 @@ int main(void)
                 exit(EXIT_FAILURE);
             }
 
-            printf("count = %d\n", ++count);
-            printf("recv connect ip=%s port=%d\n", inet_ntoa(peeraddr.sin_addr),
+            printf("%d: recv connect ip=%s port=%d\n", ++count, inet_ntoa(peeraddr.sin_addr),
                    ntohs(peeraddr.sin_port));
 
             client[i].events = POLLIN;
