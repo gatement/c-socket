@@ -21,7 +21,7 @@ int conn;
 void handler(int sig)
 {
     printf("recv a sig=%d\n", sig);
-	close(conn);
+    close(conn);
     exit(EXIT_SUCCESS);
 }
 
@@ -62,9 +62,9 @@ int main(void)
         ERR_EXIT("fork error");
     if (pid == 0)
     {
-		// child: send
+        // child: send
         signal(SIGUSR1, handler);
-		close(listenfd);
+        close(listenfd);
 
         char sendbuf[1024] = {0};
         while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL)
@@ -75,7 +75,7 @@ int main(void)
     }
     else
     {
-		// parent: receive
+        // parent: receive
         char recvbuf[1024];
         while (1)
         {
@@ -83,16 +83,15 @@ int main(void)
             int ret = read(conn, recvbuf, sizeof(recvbuf));
             if (ret == -1)
                 ERR_EXIT("read error");
-            else if (ret == 0)
-            {
+            else if (ret == 0) {
                 printf("peer close\n");
                 break;
             }
             fputs(recvbuf, stdout);
         }
         kill(pid, SIGUSR1);
-		close(conn);
-		close(listenfd);
+        close(conn);
+        close(listenfd);
         exit(EXIT_SUCCESS);
     }
 }
