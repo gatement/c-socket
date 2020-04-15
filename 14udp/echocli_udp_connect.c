@@ -26,16 +26,16 @@ void echo_cli(int sock)
     int ret;
     char sendbuf[1024] = {0};
     char recvbuf[1024] = {0};
-	
-	// after connect, if the server is down, exception will occur if call "recvfrom"
-	connect(sock, (struct sockaddr*)&servaddr, sizeof(servaddr));
+
+    // after connect, if the server is down, exception will occur if call "recvfrom"
+    connect(sock, (struct sockaddr*)&servaddr, sizeof(servaddr));
 
     while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL)
     {
         send(sock, sendbuf, strlen(sendbuf), 0);
         //sendto(sock, sendbuf, strlen(sendbuf), 0, NULL, 0);
 
-		// will have exception because I have connected to the specific server
+        // will have exception because I have connected to the specific server
         ret = recvfrom(sock, recvbuf, sizeof(recvbuf), 0, NULL, NULL);
         if (ret == -1)
         {

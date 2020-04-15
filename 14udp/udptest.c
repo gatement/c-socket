@@ -29,7 +29,7 @@ int main(void)
     if (bind(sock, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
         ERR_EXIT("bind");
 
-	// send to myself
+    // send to myself
     sendto(sock, "ABCD", 4, 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
 
     char recvbuf[1];
@@ -37,7 +37,7 @@ int main(void)
     int i;
     for (i = 0; i < 4; i++)
     {
-		// if recv buf less than the packet size, the un-read bytes will be lost even you want to read them again as this example
+	// if recv buf less than the packet size, the un-read bytes will be lost even you want to read them again as this example
         n = recvfrom(sock, recvbuf, sizeof(recvbuf), 0, NULL, NULL);
         if (n == -1)
         {
@@ -45,10 +45,11 @@ int main(void)
                 continue;
             ERR_EXIT("recvfrom");
         }
-        else if(n > 0)
+        else if(n > 0) {
             printf("n=%d %c\n", n, recvbuf[0]);
+        }
     }
 
-	close(sock);
+    close(sock);
     return 0;
 }
