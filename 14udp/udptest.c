@@ -46,7 +46,7 @@ int main(void)
             ERR_EXIT("recvfrom");
         }
         else if(n > 0) {
-            printf("n=%d %c\n", n, recvbuf[0]);
+            printf("i=%d, n=%d: %c\n", i, n, recvbuf[0]);
         }
     }
 
